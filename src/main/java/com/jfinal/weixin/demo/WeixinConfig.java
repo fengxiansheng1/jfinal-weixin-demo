@@ -13,6 +13,7 @@ import com.jfinal.config.Routes;
 import com.jfinal.core.JFinal;
 import com.jfinal.kit.PropKit;
 import com.jfinal.render.ViewType;
+import com.jfinal.template.Engine;
 import com.jfinal.weixin.sdk.api.ApiConfigKit;
 import com.jfinal.weixin.share.ShareController;
 import com.jfinal.weixin.usercontroller.UserController;
@@ -76,6 +77,11 @@ public class WeixinConfig extends JFinalConfig {
 		
 	}
 	
+	@Override
+	public void configEngine(Engine engine) {
+		
+	}
+	
 	public void afterJFinalStart() {
 		// 1.5 之后支持redis存储access_token、js_ticket，需要先启动RedisPlugin
 //		ApiConfigKit.setAccessTokenCache(new RedisAccessTokenCache());
@@ -87,5 +93,5 @@ public class WeixinConfig extends JFinalConfig {
 	public static void main(String[] args) {
 		JFinal.start("src/main/webapp", 8080, "/", 5);
 	}
-	
+
 }
