@@ -54,26 +54,19 @@ import com.jfinal.weixin.util.WeixinUtil;
  * 方法即可直接运行看效果，在此基础之上修改相关的方法即可进行实际项目开发
  */
 public class WeixinMsgController extends MsgControllerAdapter {
-	//菜单类型事件的按钮
-	public static Map<String, String> cMenuEventMap=new HashMap<String, String>();
-	//临时存放用户回答的成语
-	public static Map<String, List<String>> cUserReplyIdiomsMap=new HashMap<String, List<String>>();
+	public static Map<String, String> xiaoyiIdiomsMap = new HashMap<String, String>();
+	// 菜单类型事件的按钮
+	public static Map<String, String> cMenuEventMap = new HashMap<String, String>();
+	// 临时存放用户回答的成语
+	public static Map<String, List<String>> cUserReplyIdiomsMap = new HashMap<String, List<String>>();
 	public static String nearbyContent;// 附近
 	public static String location;// 地理位置114.037125,22.645319
 	public static String weahterContent;
 	public String Regex = "[\\+ ~!@#%^-_=]?";
 	static Log logger = Log.getLog(WeixinMsgController.class);
 	private static final String helpStr = "么么哒  美女等你好久了哦!! \n\n\t发送 help 可获得帮助，发送 \"美女\" 可看美女，发送 music 可听音乐 。\n\n"
-			+ "1、人脸识别" + "\n" 
-			+ "2、在线翻译" + "\n" 
-			+ "3、天气查询" + "\n" 
-			+ "4、公交查询" + "\n" 
-			+ "5、手机归属地查询" + "\n" 
-			+ "6、身份证查询" + "\n" 
-			+ "7、附近查询" + "\n" 
-			+ "8、开发者模式" + "\n"
-			+ "9、QQ咨询" + "\n\n" 
-			+ "10、获取资料密码" + "\n\n"
+			+ "1、人脸识别" + "\n" + "2、在线翻译" + "\n" + "3、天气查询" + "\n" + "4、公交查询" + "\n" + "5、手机归属地查询" + "\n" + "6、身份证查询"
+			+ "\n" + "7、附近查询" + "\n" + "8、开发者模式" + "\n" + "9、QQ咨询" + "\n\n" + "10、获取资料密码" + "\n\n"
 
 			+ "公众号功能持续完善中\n\n"
 			+ "微信交流群：<a href=\"http://shang.qq.com/wpa/qunwpa?idkey=7f176ad0cd979c3a7e6ceeab0207a5bfc39ddcf0ad8b3552696e09f04867b245\">114196246</a>\n\n"
@@ -94,38 +87,69 @@ public class WeixinMsgController extends MsgControllerAdapter {
 	 * 其它类型的消息会在随后的方法中进行测试
 	 */
 	protected void processInTextMsg(InTextMsg inTextMsg) {
-		String openId=inTextMsg.getFromUserName();
-		String eventType=cMenuEventMap.get(openId);
-	
+		String openId = inTextMsg.getFromUserName();
+		String eventType = cMenuEventMap.get(openId);
+
 		String msgContent = inTextMsg.getContent().trim();
 		// 帮助提示
 		if ("help".equalsIgnoreCase(msgContent) || "帮助".equals(msgContent)) {
 			OutTextMsg outMsg = new OutTextMsg(inTextMsg);
 			outMsg.setContent(helpStr);
 			render(outMsg);
-		}else if(msgContent.length()==4 && eventType.equals(MenuEventConstant.SI_ZI_IDIOMS)){
+		} else if (msgContent.length() == 4 && eventType.equals(MenuEventConstant.SI_ZI_IDIOMS)) {
 			logger.debug("start si zi idioms battle ： " + msgContent);
 			System.out.println("start si zi idioms battle ： " + msgContent);
-			OutTextMsg outMsg = new OutTextMsg(inTextMsg);
-			SysIdiomsModel sysIdiomsModel=SysIdiomsService.findByDescription(msgContent);
-			if(sysIdiomsModel==null){
-				outMsg.setContent("此成语暂时未收录，小亦马上把它收藏起来！");
-				logger.debug("此成语暂时未收录，小亦马上把它收藏起来 ： " + msgContent);
-			}else{
-				outMsg.setContent(sysIdiomsModel.getStr("name"));
+			String xiaoyishuo = xiaoyiIdiomsMap.get(openId);
+			String xiaoyiShuoLast = xiaoyishuo.substring(xiaoyishuo.length() - 1, xiaoyishuo.length());
+			String userShuoFirst = msgContent.substring(0, 1);
+			if (xiaoyiShuoLast.equals(userShuoFirst)) {
+				SysIdiomsModel sysIdiomsModel = SysIdiomsService.findByDescription(userShuoFirst);
+				if (sysIdiomsModel != null) {// 说明成语库中有此成语
+					System.out.println("首尾字相匹配，说明成语库中有此成语");
+					String name = sysIdiomsModel.getStr("name");
+				
+					List<String> list = cUserReplyIdiomsMap.get(openId);
+					if (list.size() < 1) {
+						list.add(name);
+					} else {
+						cUserReplyIdiomsMap.get(openId).add(name);// 回答对一个往里面加一个
+					}
+
+					String xiaoyiShuo = name.substring(name.length() - 1, name.length());
+					sysIdiomsModel = SysIdiomsService.findByDescription(xiaoyiShuo);
+					if (sysIdiomsModel != null) {
+						name = sysIdiomsModel.getStr("name");
+						OutTextMsg outMsg = new OutTextMsg(inTextMsg);
+						outMsg.setContent(name);
+						render(outMsg);
+						xiaoyiIdiomsMap.put(openId, name);
+
+					}else{
+						OutTextMsg outMsg = new OutTextMsg(inTextMsg);
+						outMsg.setContent("此成语暂时未收录，小亦马上把它收藏起来");
+						render(outMsg);
+					}
+
+				} else {// 此成语暂时未收录，小亦马上把它收藏起来
+					logger.debug("此成语暂时未收录，小亦马上把它收藏起来 ： " + msgContent);
+
+				}
+
+			} else {// 尾字和首字不匹配，从新再来，加油……
+				OutTextMsg outMsg = new OutTextMsg(inTextMsg);
+				outMsg.setContent("尾字和首字不匹配，从新再来，加油……");
+				render(outMsg);
 			}
-			
-			render(outMsg);
-			
-		}else if(msgContent.equals("99999999")){
+
+		} else if (msgContent.equals("99999999")) {
 			cMenuEventMap.remove(openId);
 			cUserReplyIdiomsMap.remove(openId);
 			OutTextMsg outMsg = new OutTextMsg(inTextMsg);
-			
-				outMsg.setContent("清除内存成功");
+
+			outMsg.setContent("清除内存成功");
 
 			render(outMsg);
-			
+
 		}
 		// 其它文本消息直接返回原值 + 帮助提示
 		else {
@@ -137,12 +161,12 @@ public class WeixinMsgController extends MsgControllerAdapter {
 	 * 实现父类抽方法，处理图片消息
 	 */
 	protected void processInImageMsg(InImageMsg inImageMsg) {
-//		OutImageMsg outMsg = new OutImageMsg(inImageMsg);
-//		// 将刚发过来的图片再发回去
-//		outMsg.setMediaId(inImageMsg.getMediaId());
-//		render(outMsg);
-		String picUrl =inImageMsg.getPicUrl();
-		String respContent=FaceService.detect(picUrl);
+		// OutImageMsg outMsg = new OutImageMsg(inImageMsg);
+		// // 将刚发过来的图片再发回去
+		// outMsg.setMediaId(inImageMsg.getMediaId());
+		// render(outMsg);
+		String picUrl = inImageMsg.getPicUrl();
+		String respContent = FaceService.detect(picUrl);
 		renderOutTextMsg(respContent);
 	}
 
@@ -183,43 +207,44 @@ public class WeixinMsgController extends MsgControllerAdapter {
 	 * 实现父类抽方法，处理地址位置消息
 	 */
 	protected void processInLocationMsg(InLocationMsg inLocationMsg) {
-//		OutTextMsg outMsg = new OutTextMsg(inLocationMsg);
-//		outMsg.setContent("已收到地理位置消息:" + "\nlocation_X = " + inLocationMsg.getLocation_X() + "\nlocation_Y = "
-//				+ inLocationMsg.getLocation_Y() + "\nscale = " + inLocationMsg.getScale() + "\nlabel = "
-//				+ inLocationMsg.getLabel());
-//		render(outMsg);
-		
+		// OutTextMsg outMsg = new OutTextMsg(inLocationMsg);
+		// outMsg.setContent("已收到地理位置消息:" + "\nlocation_X = " +
+		// inLocationMsg.getLocation_X() + "\nlocation_Y = "
+		// + inLocationMsg.getLocation_Y() + "\nscale = " +
+		// inLocationMsg.getScale() + "\nlabel = "
+		// + inLocationMsg.getLabel());
+		// render(outMsg);
+
 		String Location_X = inLocationMsg.getLocation_X();
 		String Location_Y = inLocationMsg.getLocation_Y();
-		System.out.println("Location_X:" + Location_X + " Location_Y:"
-				+ Location_Y);
-		location=Location_Y+","+Location_X;
-		
-		String respContent="";
+		System.out.println("Location_X:" + Location_X + " Location_Y:" + Location_Y);
+		location = Location_Y + "," + Location_X;
+
+		String respContent = "";
 		if (StrKit.isBlank(nearbyContent) && StrKit.isBlank(weahterContent)) {
 			respContent = "您发送的是地理位置消息！\n\n 1、查询天气 直接回复【天气】\n2、查询附近 如：附近酒店";
 			renderOutTextMsg(respContent);
-		}else {
+		} else {
 			if (!StrKit.isBlank(nearbyContent)) {
 				List<News> ambitusService = BaiduAmbitus.getAmbitusService(nearbyContent, location);
-				if (ambitusService.size()>0) {
+				if (ambitusService.size() > 0) {
 					OutNewsMsg outMsg = new OutNewsMsg(inLocationMsg);
 					outMsg.addNews(ambitusService);
 					render(outMsg);
-					nearbyContent=null;
-					location=null;
-					return ;
-				}else {
-					respContent="\ue252 查询周边失败，请检查。";
+					nearbyContent = null;
+					location = null;
+					return;
+				} else {
+					respContent = "\ue252 查询周边失败，请检查。";
 					renderOutTextMsg(respContent);
 				}
-			}else if (!StrKit.isBlank(weahterContent)) {
-				respContent=BaiduWeatherService.getWeatherService(location);
-				weahterContent=null;
-				location=null;
+			} else if (!StrKit.isBlank(weahterContent)) {
+				respContent = BaiduWeatherService.getWeatherService(location);
+				weahterContent = null;
+				location = null;
 				renderOutTextMsg(respContent);
 			}
-			
+
 		}
 	}
 
@@ -242,7 +267,7 @@ public class WeixinMsgController extends MsgControllerAdapter {
 	protected void processInLocationEvent(InLocationEvent inLocationEvent) {
 		logger.debug("发送地理位置事件：" + inLocationEvent.getFromUserName());
 		OutTextMsg outMsg = new OutTextMsg(inLocationEvent);
-		outMsg.setContent("地理位置是：\n" + inLocationEvent.getLatitude()+"\n"+inLocationEvent.getLongitude());
+		outMsg.setContent("地理位置是：\n" + inLocationEvent.getLatitude() + "\n" + inLocationEvent.getLongitude());
 		render(outMsg);
 	}
 
@@ -257,24 +282,25 @@ public class WeixinMsgController extends MsgControllerAdapter {
 	 */
 	protected void processInMenuEvent(InMenuEvent inMenuEvent) {
 		logger.debug("菜单事件：" + inMenuEvent.getFromUserName());
-		String openId=inMenuEvent.getFromUserName();
-		String eventType=cMenuEventMap.get(openId);
+		String openId = inMenuEvent.getFromUserName();
+		String eventType = cMenuEventMap.get(openId);
 		OutTextMsg outMsg = new OutTextMsg(inMenuEvent);
-		if(null==eventType){	
-			outMsg.setContent(MenuTipConstant.SI_ZI_IDIOMS_NULL_CLICK+MenuEventConstant.FIRST_SI_ZI_IDIOMS);
-			cMenuEventMap.put(openId,MenuEventConstant.SI_ZI_IDIOMS);
-			List<String> list=new ArrayList<String>();
-			list.add(MenuEventConstant.FIRST_SI_ZI_IDIOMS);
+		if (null == eventType) {
+			cMenuEventMap.put(openId, MenuEventConstant.SI_ZI_IDIOMS);
+			xiaoyiIdiomsMap.put(openId, MenuEventConstant.FIRST_SI_ZI_IDIOMS);
+			List<String> list = new ArrayList<String>();
 			cUserReplyIdiomsMap.put(openId, list);
-			
-		}else{
-			int size=cUserReplyIdiomsMap.get(openId).size();
-			String lastIdioms=cUserReplyIdiomsMap.get(openId).get(size-1);
-				outMsg.setContent(MenuTipConstant.SI_ZI_IDIOMS_NO_NULL_CLICK.replace("#", size+"").replace("?",lastIdioms ));
-			
+			outMsg.setContent(MenuTipConstant.SI_ZI_IDIOMS_NULL_CLICK + MenuEventConstant.FIRST_SI_ZI_IDIOMS);
+
+		} else {
+			String xiaoyishuo = xiaoyiIdiomsMap.get(openId);
+			int size = cUserReplyIdiomsMap.get(openId).size();
+			outMsg.setContent(
+					MenuTipConstant.SI_ZI_IDIOMS_NO_NULL_CLICK.replace("#", size + "").replace("?", xiaoyishuo));
+
 		}
 		render(outMsg);
-		
+
 	}
 
 	@Override
