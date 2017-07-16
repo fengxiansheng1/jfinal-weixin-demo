@@ -1,14 +1,14 @@
-jdbcUrl = jdbc:mysql://127.0.0.1/jfinal_weixin?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull
-user = root
-password =
+jdbcUrl = jdbc:mysql://47.94.246.250/renren-security?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull
+user =foxadmin
+password =shihui890310A!
 devMode = true
 
 # 微信服务器回调所用的 token
-token=__my__token__
+token=fox_xiaoyishuo_weixin_token
 
 # 测试用的账号
-appId=yourAppId
-appSecret=yourAppSecret
+appId=wx99361ae36f3bd9b1
+appSecret=3ab1fd5287ce0a4d58a60e454f44a6e5
 
 #是否对消息进行加密，是否对消息进行加密，对应于微信平台的消息加解密方式，false支持明文模式及兼容模式，true支持安全模式及兼容模式
 #encryptMessage=true

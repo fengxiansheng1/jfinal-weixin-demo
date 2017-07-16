@@ -1,32 +1,27 @@
-# maven #
 target
+bin
+# Compiled class file
+*.class
 
-# eclipse #
-.settings
-.project
-.classpath
+# Log file
 *.log
 
-# windows #
-Thumbs.db
+# BlueJ files
+*.ctxt
 
-# Mac #
-.DS_Store
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
 
 # Package Files #
 *.jar
 *.war
 *.ear
+*.zip
+*.tar.gz
+*.rar
+*.settings
+*.project
+*.classpath
 
-# idea #
-.idea
-*.iml
-*.ipr
-*.iws
-
-logs
-*.class
-*.bak
-*.tmp
-
-plan.txt
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*

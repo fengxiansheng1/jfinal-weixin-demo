@@ -12,6 +12,10 @@ import com.jfinal.config.Plugins;
 import com.jfinal.config.Routes;
 import com.jfinal.core.JFinal;
 import com.jfinal.kit.PropKit;
+import com.jfinal.model.SysIdiomsModel;
+import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
+import com.jfinal.plugin.activerecord.Model;
+import com.jfinal.plugin.druid.DruidPlugin;
 import com.jfinal.render.ViewType;
 import com.jfinal.template.Engine;
 import com.jfinal.weixin.sdk.api.ApiConfigKit;
@@ -59,14 +63,14 @@ public class WeixinConfig extends JFinalConfig {
 	}
 	
 	public void configPlugin(Plugins me) {
-		// C3p0Plugin c3p0Plugin = new C3p0Plugin(PropKit.get("jdbcUrl"), PropKit.get("user"), PropKit.get("password").trim());
-		// me.add(c3p0Plugin);
-		
-		// EhCachePlugin ecp = new EhCachePlugin();
-		// me.add(ecp);
-		
-		// RedisPlugin redisPlugin = new RedisPlugin("weixin", "127.0.0.1");
-		// me.add(redisPlugin);
+		  DruidPlugin dp = new DruidPlugin(PropKit.get("jdbcUrl"),
+				  PropKit.get("user"), PropKit.get("password"));
+				me.add(dp);
+				ActiveRecordPlugin arp = new ActiveRecordPlugin(dp);
+				me.add(arp);
+				arp.addMapping("sys_idioms","idioms_id", SysIdiomsModel.class);
+				
+				
 	}
 	
 	public void configInterceptor(Interceptors me) {
