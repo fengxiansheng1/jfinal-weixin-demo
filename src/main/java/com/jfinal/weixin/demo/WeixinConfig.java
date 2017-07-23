@@ -26,6 +26,8 @@ import com.jfinal.weixin.share.ShareController;
 import com.jfinal.weixin.usercontroller.UserController;
 import com.jfinal.weixin.weboauth2.RedirectUri;
 
+import net.sourceforge.cobertura.coveragedata.TouchCollector;
+
 /**
  * @author Javen 2016年1月15日
  */
@@ -106,6 +108,7 @@ public class WeixinConfig extends JFinalConfig {
 		Redis.use().set("zhangsh", "123456");
 		Object o=Redis.use().get("zhangsh");
 		System.out.println(o);
+//		TouchCollector
 	}
 
 	public static void main(String[] args) {
