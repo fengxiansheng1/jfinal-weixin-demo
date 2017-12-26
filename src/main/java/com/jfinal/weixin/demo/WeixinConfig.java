@@ -79,8 +79,8 @@ public class WeixinConfig extends JFinalConfig {
 		
 		//redis
 		// 用于缓存bbs模块的redis服务
-		RedisPlugin bbsRedis = new RedisPlugin("idioms", "47.94.246.250",6379,"shihui890310A!");
-		me.add(bbsRedis);
+//		RedisPlugin bbsRedis = new RedisPlugin("idioms", "47.94.246.250",6379,"shihui890310A!");
+//		me.add(bbsRedis);
 
 	}
 
@@ -105,15 +105,15 @@ public class WeixinConfig extends JFinalConfig {
 		// RedisAccessTokenCache(Redis.use("weixin")));
 		// ApiConfigKit.setAccessTokenCache(new
 		// RedisAccessTokenCache("weixin"));
-		Redis.use().set("zhangsh", "123456");
-		Object o=Redis.use().get("zhangsh");
-		System.out.println(o);
-//		TouchCollector
+//		Redis.use().set("zhangsh", "123456");
+//		Object o=Redis.use().get("zhangsh");
+//		System.out.println(o);
+////		TouchCollector
 	}
 
 	public static void main(String[] args) {
 		
-		JFinal.start("src/main/webapp", 8088, "/", 5);
+		JFinal.start("src/main/webapp", 8080, "/", 5);
 	}
 
 }

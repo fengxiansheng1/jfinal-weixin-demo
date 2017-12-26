@@ -47,7 +47,7 @@ public class WeixinMsgController_bak extends MsgControllerAdapter {
 			+ "10、获取资料密码" + "\n\n"
 
 			+ "公众号功能持续完善中\n\n"
-			+ "微信交流群：<a href=\"http://shang.qq.com/wpa/qunwpa?idkey=7f176ad0cd979c3a7e6ceeab0207a5bfc39ddcf0ad8b3552696e09f04867b245\">114196246</a>\n\n"
+			+ "微信交流群：<a href=\"http://weixin.daisuxia.com/index/index.jsp\">114196246</a>\n\n"
 			+ "<a href=\"http://wx.wsq.qq.com/170814115\">我的社区>有问必答</a>\t\n\n"
 			+ " <a href=\"http://mp.weixin.qq.com/s?__biz=MzA4MDA2OTA0Mg==&mid=208184833&idx=1&sn=d9e615e45902c3c72db6c24b65c4af3e#rd\">一键关注</a>";
 
